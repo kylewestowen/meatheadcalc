@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meat Head Calculator</title>
+<style>
+body {
+font-family: Arial, Helvetica, sans-serif;
+background-color: #111;
+color: #fff;
+display: flex;
+justify-content: center;
+align-items: center;
+min-height: 100vh;
+margin: 0;
+padding: 20px;
+box-sizing: border-box;
+}
+.container {
+max-width: 420px;
+width: 100%;
+text-align: center;
+background: #1a1a1a;
+padding: 25px;
+border-radius: 12px;
+box-shadow: 0 0 20px rgba(200, 0, 0, 0.3);
+}
+
+/* Logo Styling */
+.logo {
+margin-bottom: 25px;
+position: relative;
+}
+.logo-barbell {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+width: 180px;
+height: 80px;
+background: linear-gradient(to right, #b00, #800);
+border-radius: 40px;
+position: relative;
+box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+}
+.logo-barbell::before,
+.logo-barbell::after {
+content: '';
+position: absolute;
+width: 70px;
+height: 70px;
+background: #000;
+border: 8px solid #c00;
+border-radius: 50%;
+top: 50%;
+transform: translateY(-50%);
+}
+.logo-barbell::before { left: -35px; }
+.logo-barbell::after { right: -35px; }
+.logo-bar {
+width: 220px;
+height: 18px;
+background: #333;
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+z-index: 1;
+}
+.logo-text {
+margin-top: 12px;
+font-weight: 900;
+letter-spacing: 4px;
+font-size: 2.1rem;
+color: #fff;
+text-shadow: 0 0 10px #c00, 0 0 20px #800;
+}
+.logo-subtitle {
+font-size: 1.1rem;
+color: #ccc;
+margin-top: -8px;
+letter-spacing: 2px;
+font-weight: bold;
+}
+
+#total {
+font-size: 2.4em;
+margin: 20px 0 10px;
+font-weight: bold;
+color: #ff4444;
+}
+#plates {
+font-size: 1.3em;
+margin-bottom: 25px;
+color: #ddd;
+}
+.buttons {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 12px;
+margin-bottom: 25px;
+}
+.plate-btn {
+padding: 24px 12px;
+font-size: 1.8em;
+font-weight: bold;
+background-color: #333;
+border: 3px solid #444;
+color: #fff;
+border-radius: 10px;
+cursor: pointer;
+transition: all 0.2s;
+}
+.plate-btn:hover {
+transform: scale(1.08);
+box-shadow: 0 0 15px rgba(200,0,0,0.5);
+}
+.plate-45 { background-color: #b00; border-color: #900; }
+.plate-35 { background-color: #d80; border-color: #b70; }
+.plate-25 { background-color: #0b0; border-color: #090; }
+.plate-10 { background-color: #08d; border-color: #06b; }
+.plate-5 { background-color: #d0d; border-color: #b0b; }
+.plate-2_5 { background-color: #ccc; color: #111; border-color: #aaa; }
+
+.controls {
+display: flex;
+justify-content: center;
+gap: 20px;
+margin-bottom: 25px;
+}
+.control-btn {
+padding: 12px 28px;
+font-size: 1.1em;
+background-color: #444;
+border: none;
+color: #fff;
+border-radius: 8px;
+cursor: pointer;
+transition: background 0.3s;
+}
+.control-btn:hover {
+background-color: #666;
+}
+#bar-select {
+padding: 12px;
+font-size: 1.1em;
+background: #333;
+color: #fff;
+border: 2px solid #555;
+border-radius: 8px;
+margin-bottom: 20px;
+width: 80%;
+max-width: 300px;
+}
+#barbell-visual {
+font-size: 1.4em;
+margin-top: 20px;
+color: #888;
+white-space: pre-wrap;
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="logo">
+<div class="logo-barbell">
+<div class="logo-bar"></div>
+</div>
+<div class="logo-text">MEAT HEAD</div>
+<div class="logo-subtitle">CALCULATOR</div>
+</div>
+
+<div id="total">Total: 45 lbs</div>
+<div id="plates">Plates per side: None</div>
+
+<div class="buttons">
+<button class="plate-btn plate-45" onclick="addPlate(45)">45</button>
+<button class="plate-btn plate-35" onclick="addPlate(35)">35</button>
+<button class="plate-btn plate-25" onclick="addPlate(25)">25</button>
+<button class="plate-btn plate-10" onclick="addPlate(10)">10</button>
+<button class="plate-btn plate-5" onclick="addPlate(5)">5</button>
+<button class="plate-btn plate-2_5" onclick="addPlate(2.5)">2.5</button>
+</div>
+
+<div class="controls">
+<button class="control-btn" onclick="removeLast()">Remove Last</button>
+<button class="control-btn" onclick="clearAll()">Clear</button>
+</div>
+
+<select id="bar-select" onchange="updateTotal()">
+<option value="45">Standard Bar (45 lbs)</option>
+<option value="35">Women's Bar (35 lbs)</option>
+<option value="15">Technique Bar (15 lbs)</option>
+<option value="0">No Bar</option>
+</select>
+
+<div id="barbell-visual">[ Plates ] | BAR | [ Plates ]</div>
+</div>
+
+<script>
+let plates = [];
+let barWeight = 45;
+
+function addPlate(weight) {
+plates.push(weight);
+updateDisplay();
+}
+
+function removeLast() {
+if (plates.length > 0) {
+plates.pop();
+updateDisplay();
+}
+}
+
+function clearAll() {
+plates = [];
+updateDisplay();
+}
+
+function updateTotal() {
+barWeight = parseFloat(document.getElementById('bar-select').value);
+updateDisplay();
+}
+
+function updateDisplay() {
+let sumPerSide = plates.reduce((a, b) => a + b, 0);
+let total = barWeight + 2 * sumPerSide;
+
+let plateCounts = {};
+plates.forEach(p => plateCounts[p] = (plateCounts[p] || 0) + 1);
+let platesText = Object.entries(plateCounts)
+.map(([w, c]) => `${w} × ${c}`)
+.join(', ') || 'None';
+
+document.getElementById('total').textContent = `Total: ${total} lbs`;
+document.getElementById('plates').textContent = `Plates per side: ${platesText}`;
+
+let visual = ` [ ${platesText} ] | BAR | [ ${platesText} ] `;
+document.getElementById('barbell-visual').textContent = visual;
+}
+</script>
+</body>
+</html>
